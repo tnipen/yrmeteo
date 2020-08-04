@@ -1,3 +1,6 @@
 [submodule "yr-weather-symbols"]
 	path = yrmeteo/weather-symbols
 	url = https://github.com/nrkno/yr-weather-symbols
+[submodule "yrmeteo/weather-symbols"]
+	path = yrmeteo/weather-symbols
+	url = https://github.com/nrkno/yr-weather-symbols
