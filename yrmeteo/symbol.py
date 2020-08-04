@@ -58,6 +58,18 @@ def get(temperature, precipitation, cloud_cover):
     return "%s/%s.png" % (dir, code)
 
 
+def get_image(code):
+    size = 48
+    code = "%02d" % (code)
+    base = get_base()
+    dir = "%s/weather-symbols/dist/png/%d" % (base, size)
+    path = "%s/%s.png" % (dir, code)
+    if not os.path.exists(path):
+        path = "%s/%s.png" % (dir, code + 'd')
+
+    return path
+
+
 def get_base():
     root = __file__
     if os.path.islink(root):

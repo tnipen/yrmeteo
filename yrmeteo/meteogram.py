@@ -101,8 +101,16 @@ class Meteogram(object):
             ax.yaxis.grid(True, which='major', color=gray, zorder=3, linestyle='-', lw=1)
 
 
-    def plot(self, times, air_temperature, cloud_area_fraction, precipitation_amount, precipitation_amount_min=None, precipitation_amount_max=None, probability_of_precipitation=None, wind_speed=None, wind_direction=None, air_temperature_lower=None, air_temperature_upper=None, wind_gust=None):
+    def plot(self, times, air_temperature, cloud_area_fraction, precipitation_amount,
+            precipitation_amount_min=None, precipitation_amount_max=None,
+            probability_of_precipitation=None, wind_speed=None, wind_direction=None,
+            air_temperature_lower=None, air_temperature_upper=None, wind_gust=None, weather_symbol=None):
         show_wind = wind_speed is not None and wind_direction is not None
+        print(precipitation_amount_max.shape)
+        q = np.zeros([len(precipitation_amount_max), 2])
+        q[:, 0] = probability_of_precipitation*100
+        q[:, 1] = precipitation_amount_max
+        print(q)
 
         """
         Plot temperature
@@ -144,7 +152,15 @@ class Meteogram(object):
                 It = np.argmin(np.abs(times_highres - times[t]))
             if dlt >= 2.0/24 or (times[t] * 24) % 2 == 1:
                 if not np.isnan(air_temperature[t]) and not np.isnan(precipitation_amount[t]) and not np.isnan(cloud_area_fraction[t]):
-                    symbol = yrmeteo.symbol.get(air_temperature[t], precipitation_amount[t], cloud_area_fraction[t])
+                    if weather_symbol is None:
+                        symbol = yrmeteo.symbol.get(air_temperature[t], precipitation_amount[t], cloud_area_fraction[t])
+                    else:
+                        symbol0 = yrmeteo.symbol.get(air_temperature[t], precipitation_amount[t], cloud_area_fraction[t])
+                        symbol = yrmeteo.symbol.get_image(int(weather_symbol[t]))
+                        #if symbol0 != symbol:
+                        #    print("Different symbols %s!=%s %d" % (symbol0, symbol,
+                        #        weather_symbol[t]))
+                        #    print(cloud_area_fraction[t], precipitation_amount[t], air_temperature[t])
                     image = mplimg.imread(symbol)
                     h = 0.7/5*dy/dx*2.75*dlt*24  # Icon height
                     dy1 = dy/12
@@ -157,9 +173,10 @@ class Meteogram(object):
                     if self.show_pop and probability_of_precipitation is not None:
                         pop = np.round(probability_of_precipitation[t],1)*100
                         pop = np.round(probability_of_precipitation[t],2)*100
+                        #if pop == 10 and probability_of_precipitation[t] < 10:
+                        #    pop = 9
                         if pop > 0:
                             adj = -3.0/24 * (dlt > 2.0/24)
-                            print(adj)
                             ax1.text(times[t] + adj, air_temperature_highres[It] + dy/30, "%d%%" % (pop),
                             horizontalalignment='center', fontsize=10)
         self.adjust_xaxis(ax1, False)
@@ -177,17 +194,23 @@ class Meteogram(object):
         precipitation_amount[precipitation_amount < 0.1] = 0
         if precipitation_amount_max is not None:
             precipitation_amount_max[precipitation_amount_max < 0.1] = 0
-            ax2.bar(times+0.1/24, precipitation_amount_max, 0.95*dlt, color="white", ec=blue, hatch="//////", lw=0, zorder=0)
+            ax2.bar(times - dlt + 0.1/24, precipitation_amount_max, 0.95*dlt, color="white", ec=blue, hatch="//////", lw=0, zorder=0)
             for t in range(len(times)):
                 if not np.isnan(precipitation_amount_max[t]) and precipitation_amount_max[t] > 0.1 and precipitation_amount_max[t] < 10:
-                    mpl.text(times[t]+dlt/2.0, precipitation_amount_max[t], "%0.1f" %
-                            precipitation_amount_max[t], fontsize=6,
-                          horizontalalignment="center", color="k")
+                     mpl.text(times[t] - dlt/2.0, precipitation_amount_max[t], "%0.1f" %
+                             precipitation_amount_max[t], fontsize=6,
+                           horizontalalignment="center", color="k")
+                # if not np.isnan(precipitation_amount_max[t]):
+                #     mpl.text(times[t] - dlt/2.0, precipitation_amount_max[t], "%.0f%%" %
+                #             (probability_of_precipitation[t] * 100), fontsize=6,
+                #           horizontalalignment="center", color="k")
+        # print(np.sum((precipitation_amount_max > 0.1) & (probability_of_precipitation < 0.1)))
+        # print(np.sum((precipitation_amount_max < 0.1) & (probability_of_precipitation > 0.1)))
         main_blue_bar = precipitation_amount
         if precipitation_amount_min is not None:
             main_blue_bar = precipitation_amount_min
-        ax2.bar(times+0.1/24, main_blue_bar, 0.95*dlt, color=blue, lw=0, zorder=0)
-        ax2.plot(times+0.5*dlt, precipitation_amount, '_', color="blue", ms=8, lw=0, zorder=10)
+        ax2.bar(times - dlt + 0.1/24, main_blue_bar, 0.95*dlt, color=blue, lw=0, zorder=0)
+        ax2.plot(times - 0.5*dlt, precipitation_amount, '_', color="blue", ms=8, lw=0, zorder=10)
         #ax2.set_ylabel("Precipitation (mm)")
         #ax2.set_xticks([])
         lim = [0, 10]
@@ -200,7 +223,7 @@ class Meteogram(object):
         self.adjust_xaxis(ax2, not show_wind)
         for t in range(len(times)):
             if not np.isnan(main_blue_bar[t]) and main_blue_bar[t] > 0.1:
-                mpl.text(times[t]+dlt/2.0, 0, "%0.1f" % main_blue_bar[t], fontsize=6,
+                mpl.text(times[t] - dlt/2.0, 0, "%0.1f" % main_blue_bar[t], fontsize=6,
                       horizontalalignment="center", color="k")
         axlast = ax2
 
@@ -236,7 +259,7 @@ class Meteogram(object):
                 # ax_wind.arrow(time - dx, -dy, 2*dx-hl, 2*dy-hl, head_width=0.01, head_length=0, fc='k', ec='k', zorder=10)
                 # ax_wind.plot([time - dx, time + dx], [-dy, dy], '.-', lw=1)
                 if not np.isnan(wind_speed[i]):
-                    if wind_gust is not None and np.isnan(wind_gust[i]):
+                    if wind_gust is not None and not np.isnan(wind_gust[i]):
                         text = "%1.0f-%1.0f" % (wind_speed[i], wind_gust[i])
                     else:
                         text = "%0.1f" % wind_speed[i]

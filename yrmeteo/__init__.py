@@ -42,14 +42,7 @@ def main():
         filename = args.file
     input = yrmeteo.input.Input(filename, config.get("input", {}))
     data = dict()
-    variables = ["air_temperature",
-            "cloud_area_fraction",
-            "precipitation_amount",
-            "precipitation_amount_min",
-            "precipitation_amount_max",
-            "probability_of_precipitation",
-            "wind_speed",
-            "wind_direction"]
+    variables = yrmeteo.input.variables
     for variable in variables:
         data[variable] = input.get(args.lat, args.lon,variable, [0], args.hood)
     times = input.get_times(tz=args.tz)

@@ -9,6 +9,8 @@ import met2verif.fcstinput
 
 
 variables = ["air_temperature",
+        "air_temperature_lower",
+        "air_temperature_upper",
         "precipitation_amount",
         "cloud_area_fraction",
         "wind_speed",
@@ -18,13 +20,13 @@ variables = ["air_temperature",
         "probability_of_precipitation",
         "air_temperature_lower",
         "air_temperature_upper",
+        "weather_symbol",
         "wind_gust"]
 
 
 class Input(object):
     def __init__(self, filename, config):
         self.filename = filename
-        print(0)
         self.input = met2verif.fcstinput.Netcdf(self.filename)
         self.file = netCDF4.Dataset(self.filename, 'r')
         self.config = config
@@ -48,6 +50,12 @@ class Input(object):
             if variable == "air_temperature":
                 potential_variables += ["air_temperature_2m"]
                 add = -273.15
+            elif variable == "air_temperature_lower":
+                potential_variables += ["air_temperature_2m_lower"]
+                add = -273.15
+            elif variable == "air_temperature_upper":
+                potential_variables += ["air_temperature_2m_upper"]
+                add = -273.15
             elif variable == "precipitation_amount":
                 potential_variables += ["precipitation_amount"]
             elif variable == "wind_speed":
@@ -56,10 +64,9 @@ class Input(object):
                 potential_variables += ["wind_direction_10m"]
             elif variable == "wind_gust":
                 potential_variables += ["wind_speed_of_gust"]
-            else:
+            elif variable != "weather_symbol":
                 potential_variables += [variable]
 
-            print(potential_variables)
             # Find the right variable
             for potential_variable in potential_variables:
                 if potential_variable in self.file.variables:
@@ -80,10 +87,14 @@ class Input(object):
                 y = self.input.extract([lat], [lon], yname, members, hood)
                 data = np.sqrt(x**2 + y**2)
             elif variable == "wind_direction":
-                data = None
+                verif.util.warning("Could not deal with wind direction")
+                return None
             else:
-                verif.util.error("Could not determine NetCDF variable name for '%s'" % variable)
+                verif.util.warning("Could not determine NetCDF variable name for '%s'" % variable)
+                return None
         else:
+            print(self.filename)
+            print(variable_name)
             data = self.input.extract([lat], [lon], variable_name, members, hood)
         return data[:, 0, ] * multiply + add
 
