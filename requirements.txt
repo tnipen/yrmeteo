@@ -1,6 +1,6 @@
 scipy
 numpy>=1.11
-matplotlib<2
+matplotlib
 coveralls
 pep8
 netCDF4

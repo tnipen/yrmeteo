@@ -68,7 +68,7 @@ setup(
     # your project is installed. For an analysis of "install_requires" vs pip's
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
-    install_requires=['numpy>=1.11', 'matplotlib<2', 'scipy', 'netCDF4', 'pyyaml', 'argparse'],
+    install_requires=['numpy>=1.11', 'matplotlib', 'scipy', 'netCDF4', 'pyyaml', 'argparse'],
 
     # List additional groups of dependencies here (e.g. development
     # dependencies). You can install these using the following syntax,

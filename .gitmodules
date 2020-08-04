@@ -1,4 +1,3 @@
-[submodule "yrmeteo/weather-symbols"]
-	path = yrmeteo/weather-symbols
-    # url = https://github.com/YR/weather-symbols.git
-    url = https://github.com/nrkno/yr-weather-symbols.git
+[submodule "yr-weather-symbols"]
+	path = yr-weather-symbols
+	url = https://github.com/nrkno/yr-weather-symbols
