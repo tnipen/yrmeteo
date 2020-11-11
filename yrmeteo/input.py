@@ -21,6 +21,7 @@ variables = ["air_temperature",
         "air_temperature_lower",
         "air_temperature_upper",
         "weather_symbol",
+        "weather_symbol_confidence_code",
         "wind_gust"]
 
 
@@ -96,6 +97,9 @@ class Input(object):
             print(self.filename)
             print(variable_name)
             data = self.input.extract([lat], [lon], variable_name, members, hood)
+            data[data > 1e9] = np.nan
+        if variable == "weather_symbol":
+            data = data % 128
         return data[:, 0, ] * multiply + add
 
     def get_times(self, tz=0):

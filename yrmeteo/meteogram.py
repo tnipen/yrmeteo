@@ -104,7 +104,8 @@ class Meteogram(object):
     def plot(self, times, air_temperature, cloud_area_fraction, precipitation_amount,
             precipitation_amount_min=None, precipitation_amount_max=None,
             probability_of_precipitation=None, wind_speed=None, wind_direction=None,
-            air_temperature_lower=None, air_temperature_upper=None, wind_gust=None, weather_symbol=None):
+            air_temperature_lower=None, air_temperature_upper=None, wind_gust=None,
+            weather_symbol=None, weather_symbol_confidence_code=None):
         show_wind = wind_speed is not None and wind_direction is not None
         print(precipitation_amount_max.shape)
         q = np.zeros([len(precipitation_amount_max), 2])
@@ -182,6 +183,15 @@ class Meteogram(object):
         self.adjust_xaxis(ax1, False)
         self.adjust_yaxis(ax1, False)
 
+        if weather_symbol_confidence_code is not None:
+            colors = ['w', 'y', 'r']
+            for i in range(3):
+                I = np.where(weather_symbol_confidence_code == i)[0]
+                print(i, I, dy)
+                ax1.plot(times[I], air_temperature[I], 'o', mfc=colors[i], mec='k', zorder=10)
+                # ax1.plot(times, air_temperature, 'o', mec='k', zorder=10)
+
+
         # Freezing line
         ax1.plot(xlim, [0,0], '-', lw=2, color=gray)
 
@@ -194,7 +204,7 @@ class Meteogram(object):
         precipitation_amount[precipitation_amount < 0.1] = 0
         if precipitation_amount_max is not None:
             precipitation_amount_max[precipitation_amount_max < 0.1] = 0
-            ax2.bar(times - dlt + 0.1/24, precipitation_amount_max, 0.95*dlt, color="white", ec=blue, hatch="//////", lw=0, zorder=0)
+            ax2.bar(times - dlt/2, precipitation_amount_max, 0.95*dlt, color="white", ec=blue, hatch="//////", lw=0, align='center', zorder=0)
             for t in range(len(times)):
                 if not np.isnan(precipitation_amount_max[t]) and precipitation_amount_max[t] > 0.1 and precipitation_amount_max[t] < 10:
                      mpl.text(times[t] - dlt/2.0, precipitation_amount_max[t], "%0.1f" %
@@ -209,8 +219,8 @@ class Meteogram(object):
         main_blue_bar = precipitation_amount
         if precipitation_amount_min is not None:
             main_blue_bar = precipitation_amount_min
-        ax2.bar(times - dlt + 0.1/24, main_blue_bar, 0.95*dlt, color=blue, lw=0, zorder=0)
-        ax2.plot(times - 0.5*dlt, precipitation_amount, '_', color="blue", ms=8, lw=0, zorder=10)
+        ax2.bar(times - dlt/2, main_blue_bar, 0.95*dlt, color=blue, lw=0, align='center', zorder=0)
+        ax2.plot(times - dlt/2, precipitation_amount, '_', color="blue", ms=8, lw=0, zorder=10)
         #ax2.set_ylabel("Precipitation (mm)")
         #ax2.set_xticks([])
         lim = [0, 10]
