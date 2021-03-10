@@ -21,7 +21,7 @@ variables = ["air_temperature",
         "air_temperature_lower",
         "air_temperature_upper",
         "weather_symbol",
-        "weather_symbol_confidence_code",
+        "weather_symbol_confidence_12h",
         "wind_gust"]
 
 
@@ -94,9 +94,11 @@ class Input(object):
                 verif.util.warning("Could not determine NetCDF variable name for '%s'" % variable)
                 return None
         else:
-            print(self.filename)
-            print(variable_name)
-            data = self.input.extract([lat], [lon], variable_name, members, hood)
+            try:
+                data = self.input.extract([lat], [lon], variable_name, members, hood)
+            except Exception as e:
+                print("Could not get variable %s" % variable_name)
+                return None
             data[data > 1e9] = np.nan
         if variable == "weather_symbol":
             data = data % 128

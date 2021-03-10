@@ -105,7 +105,7 @@ class Meteogram(object):
             precipitation_amount_min=None, precipitation_amount_max=None,
             probability_of_precipitation=None, wind_speed=None, wind_direction=None,
             air_temperature_lower=None, air_temperature_upper=None, wind_gust=None,
-            weather_symbol=None, weather_symbol_confidence_code=None):
+            weather_symbol=None, weather_symbol_confidence_12h=None):
         show_wind = wind_speed is not None and wind_direction is not None
         print(precipitation_amount_max.shape)
         q = np.zeros([len(precipitation_amount_max), 2])
@@ -131,9 +131,10 @@ class Meteogram(object):
         ax1.set_xlim([ax1.get_xlim()[0], np.max(times)])
         ax1.set_xlim([np.min(times), np.max(times)])
         if air_temperature_lower is not None and air_temperature_upper is not None:
-            # ax1.plot(times, data["temperature_lower"], '-', color=red, lw=2, zorder=3)
-            # ax1.plot(times, data["temperature_upper"], '-', color=red, lw=2, zorder=3)
-            ax1.fill(np.concatenate((times, times[::-1])), np.concatenate((air_temperature_lower, air_temperature_upper[::-1])), color='r', alpha=0.2, linewidth=0)
+            # ax1.plot(times, air_temperature_lower, '-', color=red, lw=2, zorder=3)
+            # ax1.plot(times, air_temperature_upper, '-', color=red, lw=2, zorder=3)
+            I = np.where((np.isnan(air_temperature_lower) == 0) & (np.isnan(air_temperature_upper) == 0))[0]
+            ax1.fill(np.concatenate((times[I], times[I[::-1]])), np.concatenate((air_temperature_lower[I], air_temperature_upper[I[::-1]])), color='r', alpha=0.2, linewidth=0)
 
         """
         Plot symbols
@@ -183,12 +184,19 @@ class Meteogram(object):
         self.adjust_xaxis(ax1, False)
         self.adjust_yaxis(ax1, False)
 
-        if weather_symbol_confidence_code is not None:
+        if weather_symbol_confidence_12h is not None:
             colors = ['w', 'y', 'r']
+            unique_timeofday = np.unique(times * 24 % 24)
+            # Find the time of day that is closest to 18Z
+            I = np.argmin(np.abs(unique_timeofday - 18))
+            lookup_timeofday = unique_timeofday[I]
+            print(lookup_timeofday)
             for i in range(3):
-                I = np.where(weather_symbol_confidence_code == i)[0]
-                print(i, I, dy)
-                ax1.plot(times[I], air_temperature[I], 'o', mfc=colors[i], mec='k', zorder=10)
+                I = np.where((weather_symbol_confidence_12h == i) & ((times * 24 % 24) == lookup_timeofday))[0]
+                # Place the 18Z confidence at 12Z
+                I0 = (I - 6/(24*dlt)).astype(int)
+                print(i, I, dlt, I0, dy)
+                ax1.plot(times[I0], air_temperature[I0], 'o', mfc=colors[i], mec='k', zorder=10)
                 # ax1.plot(times, air_temperature, 'o', mec='k', zorder=10)
 
 
