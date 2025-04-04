@@ -26,21 +26,11 @@ Load the Yr weather-symbols, but running:
   git submodule init
   git submodule update
 
-Install the required pacakges:
+Then install ``yrmeteo`` by executing the following:
 
 .. code-block:: bash
 
-  sudo apt-get update
-  sudo apt-get install netcdf-bin libnetcdf-dev libhdf5-serial-dev
-  sudo apt-get install python-setuptools python-pip
-  sudo apt-get install python-numpy python-scipy python-matplotlib
-
-Download the source code, then install ``yrmeteo`` by executing the following inside the extracted
-folder:
-
-.. code-block:: bash
-
-  sudo pip install -e .
+  pip install -e .
 
 This will create the executable ``/usr/local/bin/yrmeteo``. If ``/usr/local/bin`` is not in your PATH
 environment variable, then add it (i.e add ``export PATH=/usr/local/bin/:$PATH`` to ``~/.bashrc``).
@@ -57,6 +47,6 @@ When an input file is not specified, Yrmeteo loads the most recent MEPS file fro
 Copyright and license
 ---------------------
 
-Copyright (C) 2017 MET Norway. Yrmeteo is licensed under `LGPL version 3
+Copyright (C) 2017-2025 MET Norway. Yrmeteo is licensed under `LGPL version 3
 <https://github.com/metno/yrmeteo/blob/master/LICENSE>`_ or (at your option) any later version. The
 weather symbols used have its own license, see yrmeteo/weather-symbols/LICENSE.
