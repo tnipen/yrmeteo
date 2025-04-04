@@ -31,7 +31,7 @@ def main():
     args = parser.parse_args()
 
     with open(args.config) as cfile:
-        config = yaml.load(cfile)
+        config = yaml.load(cfile, yaml.SafeLoader)
 
     if args.file is None:
         unixtime = time.time() - 3600*2

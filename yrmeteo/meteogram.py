@@ -107,11 +107,12 @@ class Meteogram(object):
             air_temperature_lower=None, air_temperature_upper=None, wind_gust=None,
             weather_symbol=None, weather_symbol_confidence_12h=None):
         show_wind = wind_speed is not None and wind_direction is not None
-        print(precipitation_amount_max.shape)
-        q = np.zeros([len(precipitation_amount_max), 2])
-        q[:, 0] = probability_of_precipitation*100
-        q[:, 1] = precipitation_amount_max
-        print(q)
+        if 0 and precipitation_amount_max is not None:
+            print(precipitation_amount_max.shape)
+            q = np.zeros([len(precipitation_amount_max), 2])
+            q[:, 0] = probability_of_precipitation*100
+            q[:, 1] = precipitation_amount_max
+            print(q)
 
         """
         Plot temperature

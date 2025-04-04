@@ -56,6 +56,8 @@ def get(temperature, precipitation, cloud_cover):
 
     dir = "%s/weather-symbols/dist/png/%d" % (base, size)
     return "%s/%s.png" % (dir, code)
+    # dir = "%s/weather-symbols/dist/svg" % (base)
+    # return "%s/%s.svg" % (dir, code)
 
 
 def get_image(code):
